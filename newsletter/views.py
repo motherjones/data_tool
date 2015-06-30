@@ -1,3 +1,9 @@
 from django.shortcuts import render
+from newsletter import forms
 
-# Create your views here.
+from django.views.generic.edit import FormView
+
+
+class UploadSubscribersView(FormView):
+    template_name = 'newsletter/subscribers_upload_view.html'
+    form_class = forms.UploadSubscribersInput
