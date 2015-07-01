@@ -13,16 +13,20 @@ class UploadSubscribersView(FormView):
     success_url = '/'
 
     def form_valid(self, form):
-        print(self.request.FILES)
-        records = csv.reader(self.request.FILES["csv_file"])
+        csv_form = form.cleaned_data["csv_file"]
+        csv_stream = TextIOWrapper(BytesIO(csv_form.read()))
+        records = csv.reader(csv_stream)
         records.__next__()
-        truthy = { 'TRUE': True, 'FALSE' : False }
+        truthy = { 'true': True, 'false' : False }
         for line in records:
-            subscriber = models.Subscribers()
-            subscriber.date = form.cleaned_data["date"]
-            subscriber.bounce = line[0]
-            subscriber.email = line[1]
-            subscriber.active = truthy.get(line[2])
-            subscriber.domain = line[3]
-            subscriber.save()
+            try:
+                subscriber = models.Subscribers()
+                subscriber.date = form.cleaned_data["date"]
+                subscriber.bounces = line[0]
+                subscriber.email = line[1]
+                subscriber.active = truthy.get(line[2])
+                subscriber.domain = line[3]
+                subscriber.save()
+            except:
+                pass
         return super(UploadSubscribersView, self).form_valid(form)
