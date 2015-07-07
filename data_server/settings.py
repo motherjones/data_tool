@@ -23,6 +23,7 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
 
 # Application definition
 
@@ -72,8 +73,8 @@ STATIC_URL = '/static/'
 
 # CELERY SETTINGS
 BROKER_URL = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['pickle']
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
 
 from local_settings import *

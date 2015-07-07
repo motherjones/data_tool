@@ -1,11 +1,9 @@
-import csv
-
+import tempfile
 from django.shortcuts import render
-from newsletter import forms, models
+from newsletter import forms, tasks
 
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
-
 
 class UploadSubscribersView(FormView):
     template_name = 'newsletter/subscribers_upload_view.html'
@@ -14,19 +12,19 @@ class UploadSubscribersView(FormView):
 
     def form_valid(self, form):
         csv_form = form.cleaned_data["csv_file"]
-        csv_stream = TextIOWrapper(BytesIO(csv_form.read()))
-        records = csv.reader(csv_stream)
-        records.__next__()
-        truthy = { 'true': True, 'false' : False }
-        for line in records:
-            try:
-                subscriber = models.Subscribers()
-                subscriber.date = form.cleaned_data["date"]
-                subscriber.bounces = line[0]
-                subscriber.email = line[1]
-                subscriber.active = truthy.get(line[2])
-                subscriber.domain = line[3]
-                subscriber.save()
-            except:
-                pass
+        f = tempfile.NamedTemporaryFile(delete=False)
+        for chunk in csv_form.chunks():
+            f.write(chunk)
+        tasks.load_active_subscribers.delay(f.name, form.cleaned_data['date'])
         return super(UploadSubscribersView, self).form_valid(form)
+
+
+class ActiveSubscribersView(TemplateView):
+
+    template_name = "newsletter/active_subcribers_report.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ActiveSubscribersView, self).get_context_data(**kwargs)
+        context['active_users'] = models.Week.objects.all()[:5]
+        return context
+
