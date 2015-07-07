@@ -1,10 +1,10 @@
 import tempfile
 from django.shortcuts import render
-from newsletter import forms, tasks
+from newsletter import forms, tasks, models
 
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
-from django.views.generic import TemplateView
+from django.views.generic import DetailView
 
 
 class UploadSubscribersView(FormView):
@@ -21,12 +21,6 @@ class UploadSubscribersView(FormView):
         return super(UploadSubscribersView, self).form_valid(form)
 
 
-class ActiveSubscribersView(TemplateView):
-
-    template_name = "newsletter/active_subcribers_report.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(ActiveSubscribersView, self).get_context_data(**kwargs)
-        context['active_users'] = models.Week.objects.all()[:5]
-        return context
+class ActiveSubscribersView(DetailView):
+    model = models.Week
 
