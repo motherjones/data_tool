@@ -3,7 +3,9 @@ from django.shortcuts import render
 from newsletter import forms, tasks
 
 from django.core.urlresolvers import reverse
-from django.views.generic.edit import FormView, TemplateView
+from django.views.generic.edit import FormView
+from django.views.generic import TemplateView
+
 
 class UploadSubscribersView(FormView):
     template_name = 'newsletter/subscribers_upload_view.html'
