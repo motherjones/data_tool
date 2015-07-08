@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count
 
 
 class Week(models.Model):
@@ -30,17 +30,18 @@ class Week(models.Model):
         return self.subscribers_count() - pre.subscribers_count()
 
     def new_subscribers(self):
-        pre = self.previous_week().subscriber_set.all()
-        qs = self.subscriber_set.exclude(email__in=pre.values('email'))
-        return qs.count()
+        diff = Subscriber.objects.filter(week__in=(self.pk, self.previous_week().pk)).values('email').annotate(count=Count('email')).filter(count=1)
+        email = self.subscriber_set.filter(email__in=diff.values('email'))
+        return email.count()
 
     def change_in_active_subscribers(self):
         pre = self.previous_week()
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
+
 class Subscriber(models.Model):
-    email = models.CharField(max_length=40)
-    email_domain = models.CharField(max_length=24)
+    email = models.CharField(db_index=True, max_length=40)
+    email_domain = models.CharField(db_index=True, max_length=24)
     active = models.BooleanField()
     week = models.ForeignKey('Week')
     bounces = models.IntegerField()
