@@ -1,3 +1,8 @@
 <h1>Weekly Active Subscribers Report{{ object.date }}</h1>
 <p>Subscribers Count: {{ object.subscribers_count  }}</p>
 <p>Active Subscribers Count: {{ object.active_subscribers_count  }}</p>
+<p>Previous Week: {{ object.previous_week.date  }}</p>
+<p>Net Change In Subscribers: {{ object.change_in_subscribers }}</p>
+<p>Net Change In Active Subscribers: {{ object.change_in_active_subscribers }}</p>
+<p>New Subscribers: Takes too long to run{! object.new_subscribers !}</p>
+
