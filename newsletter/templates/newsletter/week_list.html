@@ -1,0 +1,9 @@
+<h1>Available Reports</h1>
+<ul>
+{% for week in object_list %}
+<li>{{ week.date|date }} - {% if week.complete %}<a href="{% url 'subscribers-report' week.pk  %}">complete</a>{% else %}imcomplete{% endif %} </li>
+{% empty %}
+    <li>No weeks yet.</li>
+{% endfor %}
+</ul>
+

@@ -4,7 +4,7 @@ from newsletter import forms, tasks, models
 
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 
 class UploadSubscribersView(FormView):
@@ -24,3 +24,5 @@ class UploadSubscribersView(FormView):
 class ActiveSubscribersView(DetailView):
     model = models.Week
 
+class WeekListView(ListView):
+    model = models.Week
