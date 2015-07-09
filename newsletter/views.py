@@ -6,8 +6,10 @@ from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
 from django.views.generic import DetailView, ListView
 
+from braces.views import LoginRequiredMixin, SuperuserRequiredMixin
 
-class UploadSubscribersView(FormView):
+
+class UploadSubscribersView(SuperuserRequiredMixin,FormView):
     template_name = 'newsletter/subscribers_upload_view.html'
     form_class = forms.UploadSubscribersInput
     success_url = '/'
@@ -21,8 +23,9 @@ class UploadSubscribersView(FormView):
         return super(UploadSubscribersView, self).form_valid(form)
 
 
-class ActiveSubscribersView(DetailView):
+class ActiveSubscribersView(LoginRequiredMixin,DetailView):
     model = models.Week
 
-class WeekListView(ListView):
+
+class WeekListView(LoginRequiredMixin,ListView):
     model = models.Week

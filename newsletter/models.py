@@ -36,7 +36,13 @@ class Week(models.Model):
     def new_subscribers(self):
         diff = Subscriber.objects.filter(week__in=(self.pk, self.previous_week().pk)).values('email').annotate(count=Count('email')).filter(count=1)
         email = self.subscriber_set.filter(email__in=diff.values('email'))
-        return email.count()
+        return email
+
+    def active_new_subscribers(self):
+        return self.new_subscribers().filter(active=True).filter(bounces__lte=1)
+
+    def inactive_new_subscribers(self):
+        return self.new_subscribers().filter(Q(active=False) | Q(bounces__gt=1))
 
     def active_to_inactive(self):
         current_inactive = self.inactive_subscribers().values('email')
