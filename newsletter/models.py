@@ -7,6 +7,7 @@ class Signup(models.Model):
     code = models.CharField(db_index=True, max_length=24)
     created = models.DateTimeField(db_index=True)
     signup_url = models.URLField(db_index=True)
+    email_domain = models.CharField(db_index=True, max_length=24)
 
 
 class Week(models.Model):
@@ -64,8 +65,6 @@ class Week(models.Model):
 
 class Subscriber(models.Model):
     signup = models.ForeignKey('Signup', db_index=True)
-    email_domain = models.CharField(db_index=True, max_length=24)
     active = models.BooleanField(db_index=True, default=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
-    last_updated = models.DateField(db_index=True)

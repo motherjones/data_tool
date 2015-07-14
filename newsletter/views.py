@@ -15,8 +15,9 @@ class TaskRunnerView(SuperuserRequiredMixin,FormView):
         f = tempfile.NamedTemporaryFile(delete=False)
         for chunk in csv_form.chunks():
             f.write(chunk)
+        print(self.task)
         self.task.delay(f.name, form.cleaned_data['date'])
-        return super(UploadSubscribersView, self).form_valid(form)
+        return super(TaskRunnerView, self).form_valid(form)
 
 
 class UploadSubscribersView(TaskRunnerView):
