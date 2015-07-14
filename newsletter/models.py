@@ -2,6 +2,13 @@ from django.db import models
 from django.db.models import Q, Count
 
 
+class Signup(models.Model):
+    email = models.CharField(unique=True, db_index=True, max_length=40)
+    code = models.CharField(db_index=True, max_length=24)
+    created = models.DateTimeField(db_index=True)
+    signup_url = models.URLField(db_index=True)
+
+
 class Week(models.Model):
     date = models.DateField(unique=True)
     complete = models.BooleanField(default=False)
@@ -56,10 +63,9 @@ class Week(models.Model):
 
 
 class Subscriber(models.Model):
-    email = models.CharField(db_index=True, max_length=40)
+    signup = models.ForeignKey('Signup', db_index=True)
     email_domain = models.CharField(db_index=True, max_length=24)
-    active = models.BooleanField(db_index=True)
+    active = models.BooleanField(db_index=True, default=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
-
-
+    last_updated = models.DateField(db_index=True)

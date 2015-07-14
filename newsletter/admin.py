@@ -4,4 +4,5 @@ from newsletter import models
 
 admin.site.register(models.Subscriber)
 admin.site.register(models.Week)
+admin.site.register(models.Signup)
 

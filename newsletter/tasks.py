@@ -10,7 +10,8 @@ def test(param):
     return 'The test task executed with argument "%s" ' % param
 
 @shared_task
-def load_active_subscribers(path, date):
+def load_active_subscribers(path, data):
+    date = data['date']
     with open(path, 'r') as csv_file:
         records = csv.reader(csv_file)
         records.__next__()
