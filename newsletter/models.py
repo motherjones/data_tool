@@ -8,6 +8,7 @@ class Signup(models.Model):
     created = models.DateTimeField(db_index=True)
     signup_url = models.URLField(db_index=True)
     email_domain = models.CharField(db_index=True, max_length=24)
+    group = models.CharField(db_index=True, max_length=24)
 
 
 class Week(models.Model):
