@@ -68,3 +68,4 @@ class Subscriber(models.Model):
     active = models.BooleanField(db_index=True, default=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
+    updated_on = models.DateTimeField()
