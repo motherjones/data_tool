@@ -69,24 +69,33 @@ def load_active_subscribers(path, date):
         week.save()
         code_grouper = build_code_grouper()
         for line in records:
-            print(line)
-            created_on = convio_datetime_to_datetime(line[2])
-            modified_on = convio_datetime_to_datetime(line[4])
-            group = code_grouper(line[0])
-            (signup, created) = models.Signup.objects.get_or_create(email=line[1],
-                defaults={
-                    'code': line[0],
-                    'created': created_on,
-                    'signup_url': line[3],
-                    'email_domain': line[7],
-                    'group': group,
-                })
-            subscriber = models.Subscriber()
-            subscriber.week = week
-            subscriber.bounces = line[6]
-            subscriber.signup = signup
-            subscriber.updated_on = modified_on
-            subscriber.active = truthy.get(line[5])
-            subscriber.save()
+            if len(line) == 8:
+                created_on = convio_datetime_to_datetime(line[2])
+                modified_on = convio_datetime_to_datetime(line[4])
+                group = code_grouper(line[0])
+                try:
+                    (signup, created) = models.Signup.objects.get_or_create(email=line[1],
+                        defaults={
+                            'code': line[0],
+                            'created': created_on,
+                            'signup_url': line[3],
+                            'email_domain': line[7],
+                            'group': group,
+                        })
+                except:
+                    print(line)
+                else:
+                    subscriber = models.Subscriber()
+                    subscriber.week = week
+                    subscriber.bounces = line[6]
+                    subscriber.signup = signup
+                    subscriber.updated_on = modified_on
+                    subscriber.active = truthy.get(line[5])
+                    try:
+                        subscriber.save()
+                    except:
+                        print(line)
+            else:
+                print(line)
         week.complete = True
         week.save()
