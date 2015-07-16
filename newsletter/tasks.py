@@ -64,7 +64,7 @@ def load_active_subscribers(path, date):
         records = csv.reader(csv_file)
         records.__next__()
         truthy = { 'true': True, 'false' : False }
-        week = models.Week.objects.get_or_create(date=date)
+        (week, creaded_week) = models.Week.objects.get_or_create(date=date)
         code_grouper = build_code_grouper()
         for line in records:
             if len(line) == 8:
