@@ -66,7 +66,7 @@ class Week(models.Model):
 
 class Subscriber(models.Model):
     signup = models.ForeignKey('Signup', db_index=True)
-    active = models.BooleanField(db_index=True, default=True)
+    active = models.NullBooleanField(db_index=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
     updated_on = models.DateTimeField()
