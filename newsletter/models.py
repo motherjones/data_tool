@@ -3,11 +3,11 @@ from django.db.models import Q, Count
 
 
 class Signup(models.Model):
-    email = models.CharField(unique=True, db_index=True, max_length=40)
+    email = models.CharField(unique=True, db_index=True, max_length=100)
     code = models.CharField(db_index=True, max_length=200)
     created = models.DateTimeField(db_index=True)
     signup_url = models.URLField(max_length=400, db_index=True)
-    email_domain = models.CharField(db_index=True, max_length=40)
+    email_domain = models.CharField(db_index=True, max_length=100)
     group = models.CharField(db_index=True, max_length=200)
 
 

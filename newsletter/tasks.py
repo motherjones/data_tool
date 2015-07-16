@@ -68,6 +68,7 @@ def load_active_subscribers(path, date):
         week.save()
         code_grouper = build_code_grouper()
         for line in records:
+            print(line)
             created_on = convio_datetime_to_datetime(line[2])
             modified_on = convio_datetime_to_datetime(line[4])
             group = code_grouper(line[0])
