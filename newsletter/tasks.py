@@ -9,6 +9,7 @@ from newsletter import models
 
 @shared_task
 def test(param):
+    print('test')
     return 'The test task executed with argument "%s" ' % param
 
 def convio_datetime_to_datetime(date):
