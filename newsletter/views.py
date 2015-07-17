@@ -45,7 +45,7 @@ class Echo(object):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
 
-class SignupsReportView(SuperuserRequiredMixin,FormView):
+class SignupsReportView(LoginRequiredMixin,FormView):
     template_name = 'newsletter/signups_report_view.html'
     form_class = forms.SignupReportInput
 
