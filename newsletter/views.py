@@ -1,3 +1,4 @@
+import csv
 import tempfile
 from django.shortcuts import render
 from newsletter import forms, tasks, models
@@ -5,6 +6,8 @@ from newsletter import forms, tasks, models
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
 from django.views.generic import DetailView, ListView
+
+from django.http import StreamingHttpResponse
 
 from braces.views import LoginRequiredMixin, SuperuserRequiredMixin
 
@@ -33,3 +36,29 @@ class ActiveSubscribersView(LoginRequiredMixin,DetailView):
 
 class WeekListView(LoginRequiredMixin,ListView):
     model = models.Week
+
+class Echo(object):
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+class SignupsReportView(SuperuserRequiredMixin,FormView):
+    template_name = 'newsletter/signups_report_view.html'
+    form_class = forms.SignupReportInput
+
+    def form_valid(self, form):
+        start_date = form.cleaned_data['start_date']
+        end_date = form.cleaned_data['end_date']
+        signups = models.Signup.objects.filter(
+            created__gte=start_date).filter(
+                created__lte=end_date
+            ).values_list('group')
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        response = StreamingHttpResponse((writer.writerow(row) for row in signups),
+                                        content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+        return response
