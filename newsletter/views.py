@@ -1,13 +1,17 @@
 import csv
 import tempfile
+import pygal
 from django.shortcuts import render
 from newsletter import forms, tasks, models
 
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
 from django.views.generic import DetailView, ListView
+from django.db.models import Count
 
-from django.http import StreamingHttpResponse
+from django.shortcuts import render_to_response
+
+from django.http import HttpResponse,StreamingHttpResponse
 
 from braces.views import LoginRequiredMixin, SuperuserRequiredMixin
 
@@ -45,6 +49,25 @@ class Echo(object):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
 
+
+def csv_response(signups):
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse((writer.writerow(row) for row in signups),
+                                    content_type="text/csv")
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    return response
+
+def histogram_response(signups):
+    bar_chart = pygal.Bar()
+    bar_chart.title = 'Signups by Affiliate Code'
+    bar_chart.x_labels = ''
+    for signup in signups:
+        bar_chart.add(signup['group'], [signup['count']])
+    bar_chart_svg = bar_chart.render()
+    return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
+
+
 class SignupsReportView(LoginRequiredMixin,FormView):
     template_name = 'newsletter/signups_report_view.html'
     form_class = forms.SignupReportInput
@@ -56,9 +79,21 @@ class SignupsReportView(LoginRequiredMixin,FormView):
             created__gte=start_date).filter(
                 created__lte=end_date
             ).values_list('group')
-        pseudo_buffer = Echo()
-        writer = csv.writer(pseudo_buffer)
-        response = StreamingHttpResponse((writer.writerow(row) for row in signups),
-                                        content_type="text/csv")
-        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-        return response
+        report_type = form.cleaned_data['report_type']
+        if report_type == 'csv':
+            signups = signups.values_list('group')
+            return csv_response(signups)
+        elif report_type == 'csv-count':
+            signups = signups.values('group').annotate(
+                    count=Count('group')).values_list('group', 'count')
+            return csv_response(signups)
+        elif report_type == 'html-count':
+            signups = signups.values('group').annotate(
+                    count=Count('group'))
+            return render_to_response('newsletter/signup-report.html', {
+                    'signups': signups,
+                })
+        elif report_type == 'svg':
+            signups = signups.values('group').annotate(
+                    count=Count('group'))
+            return histogram_response(signups)

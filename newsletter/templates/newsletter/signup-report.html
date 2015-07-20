@@ -1,0 +1,10 @@
+<table>
+  <tr>
+    <td>Code Group</td><td>Count</td>
+  </tr>
+  {% for signup in signups %}
+  <tr>
+    <td>{{ signup.group }}</td><td>{{ signup.count }}</td>
+  </tr>
+  {% endfor %}
+</table>

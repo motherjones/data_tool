@@ -8,3 +8,9 @@ class UploadSubscribersInput(forms.Form):
 class SignupReportInput(forms.Form):
     start_date = forms.DateField()
     end_date = forms.DateField()
+    report_type = forms.ChoiceField(choices=(
+                    ('csv', 'csv with just codes'),
+                    ('csv-count', 'csv with codes and counts'),
+                    ('html-count', 'html table of counts'),
+                    ('svg', 'histogram of codes'),
+                ))
