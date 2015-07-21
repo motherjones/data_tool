@@ -60,8 +60,8 @@ def build_code_grouper():
 
 @shared_task
 def load_active_subscribers(path, date):
-    with open(path, 'r') as csv_file:
-        records = csv.reader(csv_file)
+    with open(path, 'r', encoding='latin-1') as csv_file:
+        records = csv.reader(csv_file, delimiter=',')
         records.__next__()
         truthy = { 'true': True, 'false' : False }
         (week, creaded_week) = models.Week.objects.get_or_create(date=date)
