@@ -7,6 +7,8 @@ from newsletter import forms, tasks, models
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView
 from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
+
 from django.db.models import Count
 
 from django.shortcuts import render_to_response
@@ -97,3 +99,7 @@ class SignupsReportView(LoginRequiredMixin,FormView):
             signups = signups.values('group').annotate(
                     count=Count('group'))
             return histogram_response(signups)
+
+
+class IndexPage(TemplateView):
+    template_name = 'newsletter/index-page.html'
