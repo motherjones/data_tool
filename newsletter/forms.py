@@ -14,3 +14,8 @@ class SignupReportInput(forms.Form):
                     ('html-count', 'html table of counts'),
                     ('svg', 'histogram of codes'),
                 ))
+
+
+class LongevityInput(forms.Form):
+    start_date = forms.DateField()
+    end_date = forms.DateField()

@@ -1,6 +1,8 @@
 import csv
 import tempfile
 import pygal
+
+from decimal import Decimal
 from django.shortcuts import render
 from newsletter import forms, tasks, models
 
@@ -99,6 +101,44 @@ class SignupsReportView(LoginRequiredMixin,FormView):
             signups = signups.values('group').annotate(
                     count=Count('group'))
             return histogram_response(signups)
+
+
+class LongevityReportView(LoginRequiredMixin,FormView):
+    template_name = 'newsletter/signups_report_view.html'
+    form_class = forms.LongevityInput
+
+    def form_valid(self, form):
+        start_date = form.cleaned_data['start_date']
+        end_date = form.cleaned_data['end_date']
+        signups = models.Signup.objects.filter(
+            created__gte=start_date).filter(
+                created__lte=end_date
+            )
+        signups = signups.extra(
+            {"month": "date_trunc('month', created)"}
+        ).values("month").annotate(count=Count("id")).order_by("month")
+        active = signups.filter(pk__in=models.Subscriber.objects.filter(active=True))
+        active_iter = active.iterator()
+        a = next(active_iter)
+        x_values = []
+        y_values = []
+        for c in signups:
+            x_values.append(c['month'].strftime('%b %Y'))
+            if c['month'] == a['month']:
+                y_values.append(Decimal(a['count']) / Decimal(c['count']))
+                try:
+                    a = next(active_iter)
+                except:
+                    a = { 'month': '' }
+            else:
+                y_values.append(0)
+        bar_chart = pygal.Bar()
+        bar_chart.title = 'Signup Longevity Analysis'
+        bar_chart.x_labels = x_values
+        bar_chart.add('Total Signups', y_values)
+        bar_chart_svg = bar_chart.render()
+        return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
+
 
 
 class IndexPage(TemplateView):
