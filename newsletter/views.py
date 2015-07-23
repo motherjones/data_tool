@@ -120,23 +120,23 @@ class LongevityReportView(LoginRequiredMixin,FormView):
         active = signups.filter(pk__in=models.Subscriber.objects.filter(active=True))
         active_iter = active.iterator()
         a = next(active_iter)
-        x_values = []
-        y_values = []
+        bins = []
         for c in signups:
-            x_values.append(c['month'].strftime('%b %Y'))
             if c['month'] == a['month']:
-                y_values.append(Decimal(a['count']) / Decimal(c['count']))
+                bins.append((c['month'], 100*Decimal(a['count']) / Decimal(c['count'])))
                 try:
                     a = next(active_iter)
                 except:
                     a = { 'month': '' }
             else:
-                y_values.append(0)
-        bar_chart = pygal.Bar()
-        bar_chart.title = 'Signup Longevity Analysis'
-        bar_chart.x_labels = x_values
-        bar_chart.add('Total Signups', y_values)
-        bar_chart_svg = bar_chart.render()
+                bins.append((c['month'], 0))
+        chart = pygal.DateLine(x_label_rotation=90)
+        def date_formatter(date):
+            return date.strftime('%b %Y')
+        chart.x_value_formatter = date_formatter
+        chart.title = 'Signup Longevity Analysis'
+        chart.add('Total Signups', bins)
+        bar_chart_svg = chart.render()
         return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
 
 
