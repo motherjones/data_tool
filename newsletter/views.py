@@ -106,7 +106,6 @@ def build_bins(signups):
     current_active = models.Subscriber.objects.filter(active=True)\
                                 .filter(week=models.Week.get_latest()).values('signup')     
     active = signups.filter(pk__in=current_active)
-    print(active.query)
     active_iter = active.iterator()
     def get_next():
         try:
