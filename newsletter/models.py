@@ -15,6 +15,11 @@ class Week(models.Model):
     date = models.DateField(unique=True)
     complete = models.BooleanField(default=False)
 
+    @classmethod
+    def get_latest(cls):
+        qs = cls.objects.order_by('-date')
+        return qs[0]
+
     def subscribers_count(self):
         return self.subscriber_set.all().count()
 
@@ -54,13 +59,13 @@ class Week(models.Model):
         return self.new_subscribers().filter(Q(active=False) | Q(bounces__gt=1))
 
     def active_to_inactive(self):
-        current_inactive = self.inactive_subscribers().values('email')
-        change = self.previous_week().active_subscribers().filter(email__in=current_inactive)
+        current_inactive = self.inactive_subscribers().values('signup')
+        change = self.previous_week().active_subscribers().filter(signup__in=current_inactive)
         return change.count()
 
     def inactive_to_active(self):
-        current_active = self.active_subscribers().values('email')
-        change = self.previous_week().inactive_subscribers().filter(email__in=current_active)
+        current_active = self.active_subscribers().values('signup')
+        change = self.previous_week().inactive_subscribers().filter(signup__in=current_active)
         return change.count()
 
 

@@ -19,3 +19,5 @@ class SignupReportInput(forms.Form):
 class LongevityInput(forms.Form):
     start_date = forms.DateField()
     end_date = forms.DateField()
+    code = forms.CharField(required=False)
+    by_group = forms.BooleanField(initial=True, required=False)

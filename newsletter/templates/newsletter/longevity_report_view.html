@@ -1,5 +1,5 @@
-<h1>Signup Report</h1>
-<p>Returns a csv file with the code groups for the purpose of importing into excel and counting</p>
+<h1>Longevity Report</h1>
+<p>Returns a graph with the percentage of currently active subscribers by signup date.</p>
 <form action="" method="post"  enctype="multipart/form-data">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Generate Report" />

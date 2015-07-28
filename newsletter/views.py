@@ -102,9 +102,31 @@ class SignupsReportView(LoginRequiredMixin,FormView):
                     count=Count('group'))
             return histogram_response(signups)
 
+def build_bins(signups):
+    current_active = models.Subscriber.objects.filter(active=True)\
+                                .filter(week=models.Week.get_latest())
+    active = signups.filter(pk__in=current_active)
+    active_iter = active.iterator()
+    def get_next():
+        try:
+            a = next(active_iter)
+        except:
+            a = { 'month': '' }
+        return a
+    a = get_next()
+    bins = []
+    for c in signups:
+        if c['month'] == a['month']:
+            percentage = 100*Decimal(a['count']) / Decimal(c['count'])
+            bins.append((c['month'], percentage))
+            a = get_next()
+        else:
+            bins.append((c['month'], 0))
+    return bins
+
 
 class LongevityReportView(LoginRequiredMixin,FormView):
-    template_name = 'newsletter/signups_report_view.html'
+    template_name = 'newsletter/longevity_report_view.html'
     form_class = forms.LongevityInput
 
     def form_valid(self, form):
@@ -117,28 +139,23 @@ class LongevityReportView(LoginRequiredMixin,FormView):
         signups = signups.extra(
             {"month": "date_trunc('month', created)"}
         ).values("month").annotate(count=Count("id")).order_by("month")
-        active = signups.filter(pk__in=models.Subscriber.objects.filter(active=True))
-        active_iter = active.iterator()
-        a = next(active_iter)
-        bins = []
-        for c in signups:
-            if c['month'] == a['month']:
-                bins.append((c['month'], 100*Decimal(a['count']) / Decimal(c['count'])))
-                try:
-                    a = next(active_iter)
-                except:
-                    a = { 'month': '' }
-            else:
-                bins.append((c['month'], 0))
         chart = pygal.DateLine(x_label_rotation=90)
+        total = build_bins(signups)
         def date_formatter(date):
             return date.strftime('%b %Y')
         chart.x_value_formatter = date_formatter
         chart.title = 'Signup Longevity Analysis'
-        chart.add('Total Signups', bins)
+        chart.add('Total Signups', total)
+        code =  form.cleaned_data['code']
+        if code:
+            if form.cleaned_data['by_group']:
+                signups = signups.filter(group=code)
+            else:
+                signups = signups.filter(code=code)
+            code_counts = build_bins(signups)
+            chart.add(code, code_counts)
         bar_chart_svg = chart.render()
         return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
-
 
 
 class IndexPage(TemplateView):
