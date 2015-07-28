@@ -48,8 +48,8 @@ class Week(models.Model):
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
     def new_subscribers(self):
-        diff = Subscriber.objects.filter(week__in=(self.pk, self.previous_week().pk)).values('email').annotate(count=Count('email')).filter(count=1)
-        email = self.subscriber_set.filter(email__in=diff.values('email'))
+        diff = Subscriber.objects.filter(week__in=(self.pk, self.previous_week().pk)).values('signup').annotate(count=Count('signup')).filter(count=1)
+        email = self.subscriber_set.filter(signup__in=diff.values('signup'))
         return email
 
     def active_new_subscribers(self):
