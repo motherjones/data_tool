@@ -104,7 +104,7 @@ class SignupsReportView(LoginRequiredMixin,FormView):
 
 def build_bins(signups):
     current_active = models.Subscriber.objects.filter(active=True)\
-                                .filter(week=models.Week.get_latest()).values('signup')     
+                    .filter(week=models.Week.get_latest()).values('signup')
     active = signups.filter(pk__in=current_active)
     active_iter = active.iterator()
     def get_next():
@@ -149,12 +149,13 @@ class LongevityReportView(LoginRequiredMixin,FormView):
         codes =  form.cleaned_data['code']
         if codes:
             codes = codes.split(',')
-            if form.cleaned_data['by_group']:
-                signups = signups.filter(group=code)
-            else:
-                signups = signups.filter(code=code)
-            code_counts = build_bins(signups)
-            chart.add(code, code_counts)
+            for code in codes:
+                if form.cleaned_data['by_group']:
+                    grouped = signups.filter(group=code)
+                else:
+                    grouped = signups.filter(code=code)
+                code_counts = build_bins(grouped)
+                chart.add(code, code_counts)
         bar_chart_svg = chart.render()
         return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
 

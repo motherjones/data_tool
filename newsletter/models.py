@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime, time, timedelta
+
 from django.db import models
 from django.db.models import Q, Count
 
@@ -48,9 +51,8 @@ class Week(models.Model):
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
     def new_subscribers(self):
-        diff = Subscriber.objects.filter(week__in=(self.pk, self.previous_week().pk)).values('signup').annotate(count=Count('signup')).filter(count=1)
-        email = self.subscriber_set.filter(signup__in=diff.values('signup'))
-        return email
+        subs = Subscriber.objects.filter(signup__in=self.new_signups())
+        return subs
 
     def active_new_subscribers(self):
         return self.new_subscribers().filter(active=True).filter(bounces__lte=1)
@@ -67,6 +69,15 @@ class Week(models.Model):
         current_active = self.active_subscribers().values('signup')
         change = self.previous_week().inactive_subscribers().filter(signup__in=current_active)
         return change.count()
+
+    def new_signups(self):
+        t = time(10,0)
+        end = datetime.combine(self.date, t)
+        tz = pytz.timezone('US/Pacific')
+        end = tz.localize(end)
+        start = end - timedelta(days=7)
+        n = Signup.objects.filter(created__gt=start).filter(created__lte=end)
+        return n
 
 
 class Subscriber(models.Model):
