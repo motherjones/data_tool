@@ -5,12 +5,16 @@ from django.db import models
 from django.db.models import Q, Count
 
 
-class Signup(models.Model):
+class Email(models.Model):
     email = models.CharField(unique=True, db_index=True, max_length=100)
+    email_domain = models.CharField(db_index=True, max_length=100)
+
+
+class Signup(models.Model):
+    email = models.ForeignKey('Email', db_index=True)
     code = models.CharField(db_index=True, max_length=200)
     created = models.DateTimeField(db_index=True)
     signup_url = models.URLField(max_length=400, db_index=True)
-    email_domain = models.CharField(db_index=True, max_length=100)
     group = models.CharField(db_index=True, max_length=200)
 
 
@@ -79,9 +83,12 @@ class Week(models.Model):
         n = Signup.objects.filter(created__gt=start).filter(created__lte=end)
         return n
 
+    def __unicode__(self):
+        return self.date
+
 
 class Subscriber(models.Model):
-    signup = models.ForeignKey('Signup', db_index=True)
+    email = models.ForeignKey('Email', db_index=True)
     active = models.NullBooleanField(db_index=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
