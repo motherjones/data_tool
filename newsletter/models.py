@@ -88,7 +88,7 @@ class Week(models.Model):
 
 
 class Subscriber(models.Model):
-    email = models.ForeignKey('Email', db_index=True)
+    signup = models.ForeignKey('Signup', db_index=True)
     active = models.NullBooleanField(db_index=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)

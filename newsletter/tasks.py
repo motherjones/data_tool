@@ -90,22 +90,16 @@ def load_active_subscribers(path, date):
                     print(line)
                 else:
                     is_active = truthy.get(line[5])
-                    (subscriber, created) = models.Subscriber.objects.\
-                        get_or_create(email=email,week=week,
-                            defaults= {
-                                'bounces': line[6],
-                                'updated_on': modified_on,
-                                'active': is_active,
-                            })
-                    if not created:
-                        if not is_active:
-                            subscriber.active=False
-                        if bounces > subscriber.bounces:
-                            subscriber.bounces=bounces
-                        try:
-                            subscriber.save()
-                        except:
-                            print(line)
+                    try:
+                        (subscriber, created) = models.Subscriber.objects.\
+                            get_or_create(signup=signup, week=week,
+                                defaults= {
+                                    'bounces': line[6],
+                                    'updated_on': modified_on,
+                                    'active': is_active,
+                                })
+                    except:
+                        print(line)
             else:
                 print(line)
         week.complete = True

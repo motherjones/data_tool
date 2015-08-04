@@ -3,7 +3,7 @@ from django.contrib import admin
 from newsletter import models
 
 class SubscriberAdmin(admin.ModelAdmin):
-    raw_id_fields = ("email",)
+    raw_id_fields = ("signup",)
 
 class SignupAdmin(admin.ModelAdmin):
     raw_id_fields = ("email",)

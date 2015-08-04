@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Email',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('email', models.CharField(max_length=100, db_index=True, unique=True)),
                 ('email_domain', models.CharField(max_length=100, db_index=True)),
             ],
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Signup',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('code', models.CharField(max_length=200, db_index=True)),
                 ('created', models.DateTimeField(db_index=True)),
                 ('signup_url', models.URLField(max_length=400, db_index=True)),
@@ -38,11 +38,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Subscriber',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('active', models.NullBooleanField(db_index=True)),
                 ('bounces', models.IntegerField(db_index=True)),
                 ('updated_on', models.DateTimeField()),
-                ('email', models.ForeignKey(to='newsletter.Email')),
+                ('signup', models.ForeignKey(to='newsletter.Signup')),
             ],
             options={
             },
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Week',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('date', models.DateField(unique=True)),
                 ('complete', models.BooleanField(default=False)),
             ],
