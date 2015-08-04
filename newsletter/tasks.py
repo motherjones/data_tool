@@ -72,27 +72,40 @@ def load_active_subscribers(path, date):
                 modified_on = convio_datetime_to_datetime(line[4])
                 group = code_grouper(line[0])
                 try:
-                    (signup, created) = models.Signup.objects.get_or_create(email=line[1],
+                    bounces = int(line[6])
+                except:
+                    bounces = 0
+                (email, created) = models.Email.objects.get_or_create(email=line[1],
+                    defaults={
+                        'email_domain': line[7]
+                    })
+                try:
+                    (signup, created) = models.Signup.objects.get_or_create(
+                        email=email, code=line[0], created=created_on,
+                        signup_url=line[3],
                         defaults={
-                            'code': line[0],
-                            'created': created_on,
-                            'signup_url': line[3],
-                            'email_domain': line[7],
                             'group': group,
                         })
                 except:
                     print(line)
                 else:
-                    subscriber = models.Subscriber()
-                    subscriber.week = week
-                    subscriber.bounces = line[6]
-                    subscriber.signup = signup
-                    subscriber.updated_on = modified_on
-                    subscriber.active = truthy.get(line[5])
-                    try:
-                        subscriber.save()
-                    except:
-                        print(line)
+                    is_active = truthy.get(line[5])
+                    (subscriber, created) = models.Subscriber.objects.\
+                        get_or_create(email=email,week=week,
+                            defaults= {
+                                'bounces': line[6],
+                                'updated_on': modified_on,
+                                'active': is_active,
+                            })
+                    if not created:
+                        if not is_active:
+                            subscriber.active=False
+                        if bounces > subscriber.bounces:
+                            subscriber.bounces=bounces
+                        try:
+                            subscriber.save()
+                        except:
+                            print(line)
             else:
                 print(line)
         week.complete = True
