@@ -7,9 +7,9 @@ from django.shortcuts import render
 from newsletter import forms, tasks, models
 
 from django.core.urlresolvers import reverse
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView,FormMixin
 from django.views.generic import DetailView, ListView
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, TemplateResponseMixin,View
 
 from django.db.models import Count
 
@@ -19,6 +19,23 @@ from django.http import HttpResponse,StreamingHttpResponse
 
 from braces.views import LoginRequiredMixin, SuperuserRequiredMixin
 
+
+class GetFormView(View):
+    """
+    A view the mimics FormView but uses GET.
+    """
+    def get(self, request, *args, **kwargs):
+        if request.GET:
+            form = self.form_class(request.GET)
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.render_to_response(form)
+        
+        return self.render_to_response(self.form_class())
+
+    def render_to_response(self, form):
+        return render_to_response(self.template_name, { 'form': form })
 
 class TaskRunnerView(SuperuserRequiredMixin,FormView):
     def form_valid(self, form):
@@ -72,7 +89,7 @@ def histogram_response(signups):
     return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
 
 
-class SignupsReportView(LoginRequiredMixin,FormView):
+class SignupsReportView(LoginRequiredMixin,GetFormView):
     template_name = 'newsletter/signups_report_view.html'
     form_class = forms.SignupReportInput
 
@@ -125,7 +142,7 @@ def build_bins(signups):
     return bins
 
 
-class LongevityReportView(LoginRequiredMixin,FormView):
+class LongevityReportView(LoginRequiredMixin,GetFormView):
     template_name = 'newsletter/longevity_report_view.html'
     form_class = forms.LongevityInput
 
