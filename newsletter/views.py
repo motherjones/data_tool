@@ -31,11 +31,11 @@ class GetFormView(View):
                 return self.form_valid(form)
             else:
                 return self.render_to_response(form)
-        
         return self.render_to_response(self.form_class())
 
     def render_to_response(self, form):
         return render_to_response(self.template_name, { 'form': form })
+
 
 class TaskRunnerView(SuperuserRequiredMixin,FormView):
     def form_valid(self, form):

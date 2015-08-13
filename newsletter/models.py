@@ -4,6 +4,8 @@ from datetime import datetime, time, timedelta
 from django.db import models
 from django.db.models import Q, Count
 
+from django.utils.http import urlencode
+
 
 class Email(models.Model):
     email = models.CharField(unique=True, db_index=True, max_length=100)
@@ -74,14 +76,29 @@ class Week(models.Model):
         change = self.previous_week().inactive_subscribers().filter(signup__in=current_active)
         return change.count()
 
-    def new_signups(self):
+    @property
+    def end_date(self):
         t = time(10,0)
         end = datetime.combine(self.date, t)
         tz = pytz.timezone('US/Pacific')
-        end = tz.localize(end)
-        start = end - timedelta(days=7)
-        n = Signup.objects.filter(created__gt=start).filter(created__lte=end)
+        return tz.localize(end)
+
+    @property
+    def start_date(self):
+        return self.end_date - timedelta(days=7)
+
+    def new_signups(self):
+        n = Signup.objects.filter(created__gt=self.start_date).filter(created__lte=self.end_date)
         return n
+
+    def signups_report(self):
+        dformat = '%Y-%m-%d'
+        q = {
+            'start_date': self.start_date.strftime(dformat),
+            'end_date': self.end_date.strftime(dformat),
+            'report_type': 'svg',
+        }
+        return urlencode(q)
 
     def __unicode__(self):
         return self.date
