@@ -7,6 +7,8 @@ from datetime import datetime
 from celery import shared_task
 from newsletter import models
 
+from django.db import connection, transaction
+
 @shared_task
 def test(param):
     print('test')
@@ -58,6 +60,13 @@ def build_code_grouper():
             return code
     return getter
 
+def update_first():
+    cursor = connection.cursor()
+    cursor.execute("update newsletter_signup set is_first = false from (select id, row_number() over (partition by email_id order by created) as rnum from newsletter_signup) s where s.rnum > 1 and s.id=newsletter_signup.id")
+    transaction.set_dirty()
+    transaction.commit()
+
+
 @shared_task
 def load_active_subscribers(path, date):
     with open(path, 'r', encoding='latin-1') as csv_file:
@@ -102,5 +111,6 @@ def load_active_subscribers(path, date):
                         print(line)
             else:
                 print(line)
+        update_first()
         week.complete = True
         week.save()

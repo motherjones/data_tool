@@ -18,6 +18,7 @@ class Signup(models.Model):
     created = models.DateTimeField(db_index=True)
     signup_url = models.URLField(max_length=400, db_index=True)
     group = models.CharField(db_index=True, max_length=200)
+    is_first = models.BooleanField(default=True)
 
 
 class Week(models.Model):
