@@ -11,6 +11,9 @@ class Email(models.Model):
     email = models.CharField(unique=True, db_index=True, max_length=100)
     email_domain = models.CharField(db_index=True, max_length=100)
 
+    def __str__(self):
+        return self.email
+
 
 class SignupQuerySet(models.QuerySet):
     def first(self):
@@ -29,6 +32,7 @@ class Signup(models.Model):
 
 class Week(models.Model):
     date = models.DateField(unique=True)
+    notes = models.TextField(default='')
     complete = models.BooleanField(default=False)
 
     @classmethod
@@ -107,8 +111,8 @@ class Week(models.Model):
         }
         return urlencode(q)
 
-    def __unicode__(self):
-        return self.date
+    def __str__(self):
+        return u"%s" % self.date
 
 
 class SubscriberQuerySet(models.QuerySet):
