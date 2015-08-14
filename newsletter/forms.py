@@ -14,6 +14,8 @@ class SignupReportInput(forms.Form):
                     ('html-count', 'html table of counts'),
                     ('svg', 'histogram of codes'),
                 ))
+    first_only = forms.BooleanField(label="First Signups Only",
+                                    initial=False, required=False)
 
 
 class LongevityInput(forms.Form):

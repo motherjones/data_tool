@@ -12,13 +12,19 @@ class Email(models.Model):
     email_domain = models.CharField(db_index=True, max_length=100)
 
 
+class SignupQuerySet(models.QuerySet):
+    def first(self):
+        return self.filter(is_first=True)
+
+
 class Signup(models.Model):
     email = models.ForeignKey('Email', db_index=True)
     code = models.CharField(db_index=True, max_length=200)
     created = models.DateTimeField(db_index=True)
     signup_url = models.URLField(max_length=400, db_index=True)
     group = models.CharField(db_index=True, max_length=200)
-    is_first = models.BooleanField(default=True)
+    is_first = models.BooleanField(db_index=True, default=True)
+    objects = SignupQuerySet.as_manager()
 
 
 class Week(models.Model):
@@ -31,16 +37,16 @@ class Week(models.Model):
         return qs[0]
 
     def subscribers_count(self):
-        return self.subscriber_set.all().count()
+        return self.subscriber_set.first().count()
 
     def inactive_subscribers(self):
-        return self.subscriber_set.filter(Q(active=False) | Q(bounces__gt=1))
+        return self.subscriber_set.first().filter(Q(active=False) | Q(bounces__gt=1))
 
     def inactive_subscribers_count(self):
         return self.inactive_subscribers().count()
 
     def active_subscribers(self):
-        return self.subscriber_set.filter(active=True).filter(bounces__lte=1)
+        return self.subscriber_set.first().filter(active=True).filter(bounces__lte=1)
 
     def active_subscribers_count(self):
         return self.active_subscribers().count()
@@ -58,7 +64,7 @@ class Week(models.Model):
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
     def new_subscribers(self):
-        subs = Subscriber.objects.filter(signup__in=self.new_signups())
+        subs = Subscriber.objects.first().filter(signup__in=self.new_signups())
         return subs
 
     def active_new_subscribers(self):
@@ -89,7 +95,7 @@ class Week(models.Model):
         return self.end_date - timedelta(days=7)
 
     def new_signups(self):
-        n = Signup.objects.filter(created__gt=self.start_date).filter(created__lte=self.end_date)
+        n = Signup.objects.first().filter(created__gt=self.start_date).filter(created__lte=self.end_date)
         return n
 
     def signups_report(self):
@@ -105,9 +111,15 @@ class Week(models.Model):
         return self.date
 
 
+class SubscriberQuerySet(models.QuerySet):
+    def first(self):
+        return self.filter(signup__is_first=True)
+
+
 class Subscriber(models.Model):
     signup = models.ForeignKey('Signup', db_index=True)
     active = models.NullBooleanField(db_index=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
     updated_on = models.DateTimeField()
+    objects = SubscriberQuerySet.as_manager()

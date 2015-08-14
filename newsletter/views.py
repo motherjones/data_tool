@@ -96,7 +96,10 @@ class SignupsReportView(LoginRequiredMixin,GetFormView):
     def form_valid(self, form):
         start_date = form.cleaned_data['start_date']
         end_date = form.cleaned_data['end_date']
-        signups = models.Signup.objects.filter(
+        signups = models.Signup.objects
+        if form.cleaned_data['first_only']:
+            signups = signups.first()
+        signups = signups.filter(
             created__gte=start_date).filter(
                 created__lte=end_date
             ).values_list('group')
@@ -149,7 +152,7 @@ class LongevityReportView(LoginRequiredMixin,GetFormView):
     def form_valid(self, form):
         start_date = form.cleaned_data['start_date']
         end_date = form.cleaned_data['end_date']
-        signups = models.Signup.objects.filter(
+        signups = models.Signup.objects.first().filter(
             created__gte=start_date).filter(
                 created__lte=end_date
             )
