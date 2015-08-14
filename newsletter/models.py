@@ -102,6 +102,11 @@ class Week(models.Model):
         n = Signup.objects.first().filter(created__gt=self.start_date).filter(created__lte=self.end_date)
         return n
 
+    def new_emails(self):
+        old = self.previous_week().subscribers_set.first().values('signup')
+        new = self.subscribers_set.first().exclude(signup__in=old)
+        return new
+
     def signups_report(self):
         dformat = '%Y-%m-%d'
         q = {
