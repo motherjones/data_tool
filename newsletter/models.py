@@ -104,7 +104,7 @@ class Week(models.Model):
 
     def new_emails(self):
         old = self.previous_week().subscriber_set.first().values('signup')
-        new = self.subscribers_set.first().exclude(signup__in=old)
+        new = self.subscriber_set.first().exclude(signup__in=old)
         return new
 
     def signups_report(self):
