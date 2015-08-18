@@ -68,7 +68,7 @@ class Week(models.Model):
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
     def new_subscribers(self):
-        subs = Subscriber.objects.first().filter(signup__in=self.new_signups())
+        subs = self.subscriber_set.first().filter(signup__in=self.new_signups())
         return subs
 
     def active_new_subscribers(self):
