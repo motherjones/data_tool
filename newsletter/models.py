@@ -45,7 +45,7 @@ class Week(models.Model):
     def update_aggregate(self):
         if self.previous_week():
             self.net_active_change = self.change_in_active_subscribers()
-            self.new_emails_count = self.new_emails().count()
+            self.new_emails_count = self.new_signups().count()
             self.active_to_inactive_count = self.active_to_inactive()
             self.inactive_to_active_count = self.inactive_to_active()
             self.new_active = self.active_new_subscribers().count()
