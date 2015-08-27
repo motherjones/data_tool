@@ -144,6 +144,9 @@ def build_bins(signups):
             bins.append((c['month'], 0))
     return bins
 
+def date_formatter(date):
+    return date.strftime('%b %Y')
+
 
 class LongevityReportView(LoginRequiredMixin,GetFormView):
     template_name = 'newsletter/longevity_report_view.html'
@@ -161,8 +164,39 @@ class LongevityReportView(LoginRequiredMixin,GetFormView):
         ).values("month").annotate(count=Count("id")).order_by("month")
         chart = pygal.DateLine(x_label_rotation=90)
         total = build_bins(signups)
-        def date_formatter(date):
-            return date.strftime('%b %Y')
+        chart.x_value_formatter = date_formatter
+        chart.title = 'Signup Longevity Analysis'
+        chart.add('Total Signups', total)
+        codes =  form.cleaned_data['code']
+        if codes:
+            codes = codes.split(',')
+            for code in codes:
+                if form.cleaned_data['by_group']:
+                    grouped = signups.filter(group=code)
+                else:
+                    grouped = signups.filter(code=code)
+                code_counts = build_bins(grouped)
+                chart.add(code, code_counts)
+        bar_chart_svg = chart.render()
+        return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
+
+
+class ActiveSubscribersGraphView(LoginRequiredMixin,GetFormView):
+    template_name = 'newsletter/longevity_report_view.html'
+    form_class = forms.LongevityInput
+
+    def form_valid(self, form):
+        start_week = form.cleaned_data['start_week']
+        end_week = form.cleaned_data['end_week']
+        subscribers = models.Subscribers.objects.first().\
+            filter(week__date__gte=start_week.date).\
+            filter(week__date_lte=end_week).order_by('-date')
+        active_count = subscribers.filter(active=True).values('week').annotate(
+            active_count=Count('email'))
+        #TODO: use case statement to do both in one query
+        inactive_count = subscribers.filter(inactive=True).values('week').\
+            annotate(inactive_count=Count('email'))
+        chart = pygal.DateLine(x_label_rotation=90)
         chart.x_value_formatter = date_formatter
         chart.title = 'Signup Longevity Analysis'
         chart.add('Total Signups', total)

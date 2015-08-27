@@ -31,9 +31,25 @@ class Signup(models.Model):
 
 
 class Week(models.Model):
-    date = models.DateField(unique=True)
+    date = models.DateField(db_index=True,unique=True)
     notes = models.TextField(default='')
     complete = models.BooleanField(default=False)
+
+    #Aggregate values
+    net_active_change = models.IntegerField(null=True)
+    new_emails_count = models.IntegerField(null=True)
+    active_to_inactive = models.IntegerField(null=True)
+    inactive_to_active = models.IntegerField(null=True)
+    new_active = models.IntegerField(null=True)
+
+    def update_aggregate(self):
+        if self.previous_week():
+            self.net_active_change = self.change_in_active_subscribers()
+            self.new_emails_count = self.new_emails().count()
+            self.active_to_inactive = self.active_to_inactive()
+            self.inactive_to_active = self.inactive_to_active()
+            self.new_active = self.active_new_subscribers().count()
+            self.save()
 
     @classmethod
     def get_latest(cls):
@@ -56,7 +72,10 @@ class Week(models.Model):
         return self.active_subscribers().count()
 
     def previous_week(self):
-        pre = self.get_previous_by_date()
+        try:
+            pre = self.get_previous_by_date()
+        except self.DoesNotExist:
+            return None
         return pre
 
     def change_in_subscribers(self):
