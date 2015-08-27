@@ -38,16 +38,16 @@ class Week(models.Model):
     #Aggregate values
     net_active_change = models.IntegerField(null=True)
     new_emails_count = models.IntegerField(null=True)
-    active_to_inactive = models.IntegerField(null=True)
-    inactive_to_active = models.IntegerField(null=True)
+    active_to_inactive_count = models.IntegerField(null=True)
+    inactive_to_active_count = models.IntegerField(null=True)
     new_active = models.IntegerField(null=True)
 
     def update_aggregate(self):
         if self.previous_week():
             self.net_active_change = self.change_in_active_subscribers()
             self.new_emails_count = self.new_emails().count()
-            self.active_to_inactive = self.active_to_inactive()
-            self.inactive_to_active = self.inactive_to_active()
+            self.active_to_inactive_count = self.active_to_inactive()
+            self.inactive_to_active_count = self.inactive_to_active()
             self.new_active = self.active_new_subscribers().count()
             self.save()
 
