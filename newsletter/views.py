@@ -181,37 +181,36 @@ class LongevityReportView(LoginRequiredMixin,GetFormView):
         return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
 
 
-class ActiveSubscribersGraphView(LoginRequiredMixin,GetFormView):
+class ChurnReportView(LoginRequiredMixin,GetFormView):
     template_name = 'newsletter/longevity_report_view.html'
-    form_class = forms.LongevityInput
+    form_class = forms.ActiveSubscribersGraphInput
 
     def form_valid(self, form):
         start_week = form.cleaned_data['start_week']
         end_week = form.cleaned_data['end_week']
-        subscribers = models.Subscribers.objects.first().\
-            filter(week__date__gte=start_week.date).\
-            filter(week__date_lte=end_week).order_by('-date')
-        active_count = subscribers.filter(active=True).values('week').annotate(
-            active_count=Count('email'))
-        #TODO: use case statement to do both in one query
-        inactive_count = subscribers.filter(inactive=True).values('week').\
-            annotate(inactive_count=Count('email'))
+        weeks = models.Week.objects.filter(date__gt=start_week.date).\
+                filter(date__lte=end_week.date).order_by('date')
         chart = pygal.DateLine(x_label_rotation=90)
         chart.x_value_formatter = date_formatter
-        chart.title = 'Signup Longevity Analysis'
-        chart.add('Total Signups', total)
-        codes =  form.cleaned_data['code']
-        if codes:
-            codes = codes.split(',')
-            for code in codes:
-                if form.cleaned_data['by_group']:
-                    grouped = signups.filter(group=code)
-                else:
-                    grouped = signups.filter(code=code)
-                code_counts = build_bins(grouped)
-                chart.add(code, code_counts)
-        bar_chart_svg = chart.render()
-        return HttpResponse(bar_chart_svg, content_type='image/svg+xml')
+        chart.title = 'Subscriber Churn Report'
+        net_active = []
+        new_active = []
+        new_email = []
+        inactive_to_active = []
+        active_to_inactive = []
+        for week in weeks:
+            net_active.append((week.date, week.net_active_change))
+            new_active.append((week.date, week.new_active))
+            new_email.append((week.date, week.new_emails_count))
+            active_to_inactive.append((week.date, week.active_to_inactive_count))
+            inactive_to_active.append((week.date, week.inactive_to_active_count))
+        chart.add('Change In Active', net_active)
+        chart.add('New Active', new_active)
+        chart.add('New Emails', new_email)
+        chart.add('Active to Inactive', active_to_inactive)
+        chart.add('Inactive to Active', inactive_to_active)
+        svg = chart.render()
+        return HttpResponse(svg, content_type='image/svg+xml')
 
 
 class IndexPage(TemplateView):
