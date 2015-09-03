@@ -5,6 +5,7 @@ from newsletter import models
 class UploadSubscribersInput(forms.Form):
     csv_file = forms.FileField()
     date = forms.DateField()
+    notes = forms.CharField(widget=forms.Textarea)
 
 
 class SignupReportInput(forms.Form):

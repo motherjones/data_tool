@@ -33,22 +33,22 @@ class GetFormView(View):
         return render_to_response(self.template_name, { 'form': form })
 
 
-class TaskRunnerView(SuperuserRequiredMixin,FormView):
+class UploadSubscribersView(SuperuserRequiredMixin,FormView):
+    template_name = 'newsletter/subscribers_upload_view.html'
+    form_class = forms.UploadSubscribersInput
+    success_url = '/'
+    task = tasks.load_active_subscribers
+
     def form_valid(self, form):
         csv_form = form.cleaned_data["csv_file"]
         f = tempfile.NamedTemporaryFile(delete=False)
         for chunk in csv_form.chunks():
             f.write(chunk)
-        print(self.task)
-        self.task.delay(f.name, form.cleaned_data['date'])
+        self.task.delay(
+                        f.name,
+                        form.cleaned_data['date'],
+                        form.cleaned_data['notes'])
         return super(TaskRunnerView, self).form_valid(form)
-
-
-class UploadSubscribersView(TaskRunnerView):
-    template_name = 'newsletter/subscribers_upload_view.html'
-    form_class = forms.UploadSubscribersInput
-    success_url = '/'
-    task = tasks.load_active_subscribers
 
 
 class ActiveSubscribersView(LoginRequiredMixin,DetailView):
