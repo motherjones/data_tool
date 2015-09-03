@@ -182,7 +182,7 @@ class LongevityReportView(LoginRequiredMixin,GetFormView):
 
 
 class ChurnReportView(LoginRequiredMixin,GetFormView):
-    template_name = 'newsletter/longevity_report_view.html'
+    template_name = 'newsletter/churn_report_view.html'
     form_class = forms.ActiveSubscribersGraphInput
 
     def form_valid(self, form):
