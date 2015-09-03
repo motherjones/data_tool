@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from . import views
+from newsletter import views
 
 urlpatterns = [
     url(r'^subscribers-upload$', views.UploadSubscribersView.as_view(),
@@ -10,5 +10,5 @@ urlpatterns = [
     url(r'^signups-report/', views.SignupsReportView.as_view(), name='signups-report'),
     url(r'^longevity-report/', views.LongevityReportView.as_view(), name='longevity-report'),
     url(r'^churn-report/', views.ChurnReportView.as_view(), name='churn-report'),
-    url(r'^$', views.IndexPage.as_view(), name='index-page'),
+    url(r'^$', views.IndexPage.as_view(), name='newsletter-index'),
 ]
