@@ -10,13 +10,9 @@ from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView,FormMixin
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView, TemplateResponseMixin,View
-
 from django.db.models import Count
-
 from django.shortcuts import render_to_response
-
 from django.http import HttpResponse,StreamingHttpResponse
-
 from braces.views import LoginRequiredMixin, SuperuserRequiredMixin
 
 
@@ -215,5 +211,5 @@ class ChurnReportView(LoginRequiredMixin,GetFormView):
         return HttpResponse(svg, content_type='image/svg+xml')
 
 
-class IndexPage(TemplateView):
+class IndexPage(LoginRequiredMixin,TemplateView):
     template_name = 'newsletter/index-page.html'
