@@ -114,3 +114,5 @@ def load_active_subscribers(path, date):
         update_first()
         week.complete = True
         week.save()
+        week.update_aggregate()
+        week.save()
