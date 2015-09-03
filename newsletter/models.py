@@ -4,6 +4,7 @@ from datetime import datetime, time, timedelta
 from django.db import models
 from django.db.models import Q, Count
 
+from django.core.urlresolvers import reverse
 from django.utils.http import urlencode
 
 
@@ -42,6 +43,14 @@ class Week(models.Model):
     inactive_to_active_count = models.IntegerField(null=True)
     new_active = models.IntegerField(null=True)
 
+    @classmethod
+    def get_latest(cls):
+        qs = cls.objects.order_by('-date')
+        return qs[0]
+
+    def get_absolute_url(self):
+        return reverse('subscribers-report', args=[str(self.pk)])
+
     def update_aggregate(self):
         if self.previous_week():
             self.net_active_change = self.change_in_active_subscribers()
@@ -51,11 +60,7 @@ class Week(models.Model):
             self.new_active = self.active_new_subscribers().count()
             self.save()
 
-    @classmethod
-    def get_latest(cls):
-        qs = cls.objects.order_by('-date')
-        return qs[0]
-
+    #Aggregation methods for weeks
     def subscribers_count(self):
         return self.subscriber_set.first().count()
 
