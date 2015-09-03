@@ -29,7 +29,6 @@ class LongevityInput(forms.Form):
 
 class ActiveSubscribersGraphInput(forms.Form):
     start_week = forms.ModelChoiceField(
-                 queryset=models.Week.objects.all().order_by('-date'))
+                 queryset=models.Week.objects.all().order_by('date'))
     end_week = forms.ModelChoiceField(
                queryset=models.Week.objects.all().order_by('-date'))
-

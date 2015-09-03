@@ -191,6 +191,8 @@ class ChurnReportView(LoginRequiredMixin,GetFormView):
         weeks = models.Week.objects.filter(date__gt=start_week.date).\
                 filter(date__lte=end_week.date).order_by('date')
         chart = pygal.DateLine(x_label_rotation=90)
+        def date_formatter(date):
+            return date.strftime("%F")
         chart.x_value_formatter = date_formatter
         chart.title = 'Subscriber Churn Report'
         net_active = []

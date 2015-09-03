@@ -1,14 +1,14 @@
 <h1>Weekly Active Subscribers Report {{ object.date }}</h1>
 <p>Active Subscribers Count: {{ object.active_subscribers_count  }}</p>
-<p>Net Change In Active Subscribers: {{ object.change_in_active_subscribers }}</p>
-<p><a href="{% url 'signups-report' %}?{{ object.signups_report }}">New Signups</a>: {{ object.new_signups.count }}</p>
-<p> Subscribers from active to inactive: {{ object.active_to_inactive }}</p>
-<p> Subscribers from inactive to active: {{ object.inactive_to_active }}</p>
+<p>Net Change In Active Subscribers: {{ object.net_active_change }}</p>
+<p><a href="{% url 'signups-report' %}?{{ object.signups_report }}">New Signups</a>: {{ object.new_emails_count }}</p>
+<p> Subscribers from active to inactive: {{ object.active_to_inactive_count }}</p>
+<p> Subscribers from inactive to active: {{ object.inactive_to_active_count }}</p>
 <hr>
 <h2>Values for Debugging not in final report</h2>
 <p>Subscribers Count: {{ object.subscribers_count  }}</p>
 <p>Previous Week: {{ object.previous_week.date  }}</p>
 <p>Net Change In Subscribers: {{ object.change_in_subscribers }}</p>
-<p>New Active Subscribers: {{ object.active_new_subscribers.count }}</p>
+<p>New Active Subscribers: {{ object.new_active }}</p>
 <p>New Inactive Subscribers: {{ object.inactive_new_subscribers.count }}</p>
 
