@@ -48,7 +48,7 @@ class UploadSubscribersView(SuperuserRequiredMixin,FormView):
                         f.name,
                         form.cleaned_data['date'],
                         form.cleaned_data['notes'])
-        return super(TaskRunnerView, self).form_valid(form)
+        return super(UploadSubscribersView, self).form_valid(form)
 
 
 class ActiveSubscribersView(LoginRequiredMixin,DetailView):
