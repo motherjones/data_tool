@@ -36,7 +36,7 @@ class GetFormView(View):
 class UploadSubscribersView(SuperuserRequiredMixin,FormView):
     template_name = 'newsletter/subscribers_upload_view.html'
     form_class = forms.UploadSubscribersInput
-    success_url = '/'
+    success_url = reverse('admin:newsletter_week_changelist')
     task = tasks.load_active_subscribers
 
     def form_valid(self, form):
