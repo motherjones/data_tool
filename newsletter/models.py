@@ -152,6 +152,7 @@ class SubscriberQuerySet(models.QuerySet):
 class Subscriber(models.Model):
     signup = models.ForeignKey('Signup', db_index=True)
     active = models.NullBooleanField(db_index=True)
+    convio_active = models.NullBooleanField(db_index=True)
     week = models.ForeignKey('Week', db_index=True)
     bounces = models.IntegerField(db_index=True)
     updated_on = models.DateTimeField()

@@ -77,7 +77,7 @@ def load_active_subscribers(path, date, notes):
                                date=date, defaults={'notes': notes})
         code_grouper = build_code_grouper()
         for line in records:
-            if len(line) == 8:
+            if len(line) == 9:
                 created_on = convio_datetime_to_datetime(line[2])
                 modified_on = convio_datetime_to_datetime(line[4])
                 group = code_grouper(line[0])
@@ -87,7 +87,7 @@ def load_active_subscribers(path, date, notes):
                     bounces = 0
                 (email, created) = models.Email.objects.get_or_create(email=line[1],
                     defaults={
-                        'email_domain': line[7]
+                        'email_domain': line[8],
                     })
                 try:
                     (signup, created) = models.Signup.objects.get_or_create(
@@ -100,6 +100,7 @@ def load_active_subscribers(path, date, notes):
                     print(line)
                 else:
                     is_active = truthy.get(line[5])
+                    is_convio_active = truthy.get(line[7])
                     try:
                         (subscriber, created) = models.Subscriber.objects.\
                             get_or_create(signup=signup, week=week,
@@ -107,6 +108,7 @@ def load_active_subscribers(path, date, notes):
                                     'bounces': line[6],
                                     'updated_on': modified_on,
                                     'active': is_active,
+                                    'convio_active': is_convio_active,
                                 })
                     except:
                         print(line)
