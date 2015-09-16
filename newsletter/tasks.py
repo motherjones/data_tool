@@ -73,6 +73,7 @@ def load_active_subscribers(path, date, notes):
         records = csv.reader(csv_file, delimiter=',')
         records.__next__()
         truthy = { 'true': True, 'false' : False }
+        activey = { 'Active': True, 'Removed' : False }
         (week, creaded_week) = models.Week.objects.get_or_create(
                                date=date, defaults={'notes': notes})
         code_grouper = build_code_grouper()
@@ -100,7 +101,7 @@ def load_active_subscribers(path, date, notes):
                     print(line)
                 else:
                     is_active = truthy.get(line[5])
-                    is_convio_active = truthy.get(line[7])
+                    is_convio_active = activey.get(line[7])
                     try:
                         (subscriber, created) = models.Subscriber.objects.\
                             get_or_create(signup=signup, week=week,
