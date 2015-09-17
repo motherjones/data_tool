@@ -65,13 +65,14 @@ class Week(models.Model):
         return self.subscriber_set.first().count()
 
     def inactive_subscribers(self):
-        return self.subscriber_set.first().filter(Q(active=False) | Q(bounces__gt=1))
+        return self.subscriber_set.first().filter(
+                Q(convio_active=False) | Q(active=False) | Q(bounces__gt=1))
 
     def inactive_subscribers_count(self):
         return self.inactive_subscribers().count()
 
     def active_subscribers(self):
-        return self.subscriber_set.first().filter(active=True).filter(bounces__lte=1)
+        return self.subscriber_set.first().filter(convio_active=True).filter(active=True).filter(bounces__lte=1)
 
     def active_subscribers_count(self):
         return self.active_subscribers().count()
@@ -96,10 +97,12 @@ class Week(models.Model):
         return subs
 
     def active_new_subscribers(self):
-        return self.new_subscribers().filter(active=True).filter(bounces__lte=1)
+        return self.new_subscribers().filter(convio_active=True).\
+                filter(active=True).filter(bounces__lte=1)
 
     def inactive_new_subscribers(self):
-        return self.new_subscribers().filter(Q(active=False) | Q(bounces__gt=1))
+        return self.new_subscribers().filter(
+                Q(convio_active=False) | Q(active=False) | Q(bounces__gt=1))
 
     def active_to_inactive(self):
         current_inactive = self.inactive_subscribers().values('signup')
