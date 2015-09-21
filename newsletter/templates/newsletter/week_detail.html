@@ -15,4 +15,4 @@
 <h3>Calculated Values</h3>
 <h4>Net Change In Active Subscribers: {{ object.net_active_change }}</h4>
 <p>New Active + I2A - A2I = {{ object.new_active|add:object.inactive_to_active_count|sub:object.active_to_inactive_count }}</p>
-<p>New Signups - New Inactive + I2A - A2I = {{ object.new_email_count|sub:object.inactive_new_subscribers_count|add:object.inactive_to_active_count|sub:object.active_to_inactive_count}}</p>
+<p>New Signups - New Inactive + I2A - A2I = {{ object.new_emails_count|sub:object.inactive_new_subscribers_count|add:object.inactive_to_active_count|sub:object.active_to_inactive_count}}</p>
