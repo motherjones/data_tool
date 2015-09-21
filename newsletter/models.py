@@ -7,6 +7,7 @@ from django.db.models import Q, Count
 from django.core.urlresolvers import reverse
 from django.utils.http import urlencode
 
+from memoize import memoize, delete_memoized, delete_memoized_verhash
 
 class Email(models.Model):
     email = models.CharField(unique=True, db_index=True, max_length=100)
@@ -61,22 +62,28 @@ class Week(models.Model):
             self.save()
 
     #Aggregation methods for weeks
+    @memoize(timeout=360)
     def subscribers_count(self):
         return self.subscriber_set.first().count()
 
+    @memoize(timeout=360)
     def inactive_subscribers(self):
         return self.subscriber_set.first().filter(
                 Q(convio_active=False) | Q(active=False) | Q(bounces__gt=1))
 
+    @memoize(timeout=360)
     def inactive_subscribers_count(self):
         return self.inactive_subscribers().count()
 
+    @memoize(timeout=360)
     def active_subscribers(self):
         return self.subscriber_set.first().filter(convio_active=True).filter(active=True).filter(bounces__lte=1)
 
+    @memoize(timeout=360)
     def active_subscribers_count(self):
         return self.active_subscribers().count()
 
+    @memoize(timeout=360)
     def previous_week(self):
         try:
             pre = self.get_previous_by_date()
@@ -84,31 +91,42 @@ class Week(models.Model):
             return None
         return pre
 
+    @memoize(timeout=360)
     def change_in_subscribers(self):
         pre = self.previous_week()
         return self.subscribers_count() - pre.subscribers_count()
 
+    @memoize(timeout=360)
     def change_in_active_subscribers(self):
         pre = self.previous_week()
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
+    @memoize(timeout=360)
     def new_subscribers(self):
         subs = self.subscriber_set.first().filter(signup__in=self.new_signups())
         return subs
 
+    @memoize(timeout=360)
     def active_new_subscribers(self):
         return self.new_subscribers().filter(convio_active=True).\
                 filter(active=True).filter(bounces__lte=1)
 
+    @memoize(timeout=360)
     def inactive_new_subscribers(self):
         return self.new_subscribers().filter(
                 Q(convio_active=False) | Q(active=False) | Q(bounces__gt=1))
 
+    @memoize(timeout=360)
+    def inactive_new_subscribers_count(self):
+        return self.inactive_new_subscribers().count()
+
+    @memoize(timeout=360)
     def active_to_inactive(self):
         current_inactive = self.inactive_subscribers().values('signup')
         change = self.previous_week().active_subscribers().filter(signup__in=current_inactive)
         return change.count()
 
+    @memoize(timeout=360)
     def inactive_to_active(self):
         current_active = self.active_subscribers().values('signup')
         change = self.previous_week().inactive_subscribers().filter(signup__in=current_active)
@@ -125,10 +143,12 @@ class Week(models.Model):
     def start_date(self):
         return self.end_date - timedelta(days=7)
 
+    @memoize(timeout=360)
     def new_signups(self):
         n = Signup.objects.first().filter(created__gt=self.start_date).filter(created__lte=self.end_date)
         return n
 
+    @memoize(timeout=360)
     def new_emails(self):
         old = self.previous_week().subscriber_set.first().values('signup')
         new = self.subscriber_set.first().exclude(signup__in=old)
