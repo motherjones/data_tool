@@ -66,7 +66,6 @@ class Week(models.Model):
     def subscribers_count(self):
         return self.subscriber_set.first().count()
 
-    @memoize(timeout=360)
     def inactive_subscribers(self):
         return self.subscriber_set.first().filter(
                 Q(convio_active=False) | Q(active=False) | Q(bounces__gt=1))
@@ -75,7 +74,6 @@ class Week(models.Model):
     def inactive_subscribers_count(self):
         return self.inactive_subscribers().count()
 
-    @memoize(timeout=360)
     def active_subscribers(self):
         return self.subscriber_set.first().filter(convio_active=True).filter(active=True).filter(bounces__lte=1)
 
@@ -101,17 +99,14 @@ class Week(models.Model):
         pre = self.previous_week()
         return self.active_subscribers_count() - pre.active_subscribers_count()
 
-    @memoize(timeout=360)
     def new_subscribers(self):
         subs = self.subscriber_set.first().filter(signup__in=self.new_signups())
         return subs
 
-    @memoize(timeout=360)
     def active_new_subscribers(self):
         return self.new_subscribers().filter(convio_active=True).\
                 filter(active=True).filter(bounces__lte=1)
 
-    @memoize(timeout=360)
     def inactive_new_subscribers(self):
         return self.new_subscribers().filter(
                 Q(convio_active=False) | Q(active=False) | Q(bounces__gt=1))
@@ -143,12 +138,10 @@ class Week(models.Model):
     def start_date(self):
         return self.end_date - timedelta(days=7)
 
-    @memoize(timeout=360)
     def new_signups(self):
         n = Signup.objects.first().filter(created__gt=self.start_date).filter(created__lte=self.end_date)
         return n
 
-    @memoize(timeout=360)
     def new_emails(self):
         old = self.previous_week().subscriber_set.first().values('signup')
         new = self.subscriber_set.first().exclude(signup__in=old)
