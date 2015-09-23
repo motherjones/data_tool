@@ -129,7 +129,7 @@ class Week(models.Model):
 
     @property
     def end_date(self):
-        t = time(10,0)
+        t = time(0,0)
         end = datetime.combine(self.date, t)
         tz = pytz.timezone('US/Pacific')
         return tz.localize(end)
