@@ -159,6 +159,9 @@ class Week(models.Model):
     def __str__(self):
         return u"%s" % self.date
 
+    class Meta:
+        ordering = ['-date']
+
 
 class SubscriberQuerySet(models.QuerySet):
     def first(self):

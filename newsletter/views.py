@@ -58,6 +58,7 @@ class ActiveSubscribersView(LoginRequiredMixin,DetailView):
 class WeekListView(LoginRequiredMixin,ListView):
     model = models.Week
 
+
 class Echo(object):
     """An object that implements just the write method of the file-like
     interface.
