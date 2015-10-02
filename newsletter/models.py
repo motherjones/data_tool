@@ -29,6 +29,8 @@ class Signup(models.Model):
     signup_url = models.URLField(max_length=400, db_index=True)
     group = models.CharField(db_index=True, max_length=200)
     is_first = models.BooleanField(db_index=True, default=True)
+    subsource = models.CharField(db_index=True, max_length=200)
+
     objects = SignupQuerySet.as_manager()
 
 
@@ -176,3 +178,5 @@ class Subscriber(models.Model):
     bounces = models.IntegerField(db_index=True)
     updated_on = models.DateTimeField()
     objects = SubscriberQuerySet.as_manager()
+    in_count = models.IntegerField(db_index=True)
+    out_count = models.IntegerField(db_index=True)
