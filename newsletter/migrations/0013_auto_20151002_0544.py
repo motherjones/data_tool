@@ -10,20 +10,12 @@ class Migration(migrations.Migration):
         # version than this migration expects. We use the historical version.
         Subscriber = apps.get_model("newsletter", "Subscriber")
         active = Subscriber.objects.filter(active=True)
-        active.update({
-            'in_count': 0,
-            'out_count': -1,
-        })
+        active.update(in_count=0, out_count=-1)
         inactive = Subscriber.objects.filter(active=False)
-        inactive.update({
-            'in_count': -1,
-            'out_count': -1,
-        })
+        inactive.update(in_count=-1, out_count=-1)
         empty = Subscriber.objects.filter(active__isnull=True)
-        inactive.update({
-            'in_count': -1,
-            'out_count': 0,
-        })
+        empty.update(in_count=-1, out_count=0)
+
     dependencies = [
         ('newsletter', '0012_auto_20151002_0543'),
     ]
