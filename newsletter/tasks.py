@@ -78,17 +78,19 @@ def load_active_subscribers(path, date, notes):
                                date=date, defaults={'notes': notes})
         code_grouper = build_code_grouper()
         for line in records:
-            if len(line) == 9:
+            if len(line) == 12:
                 created_on = convio_datetime_to_datetime(line[2])
                 modified_on = convio_datetime_to_datetime(line[4])
                 group = code_grouper(line[0])
+                subsource = line[8]
+                domain = line[11]
                 try:
                     bounces = int(line[6])
                 except:
                     bounces = 0
                 (email, created) = models.Email.objects.get_or_create(email=line[1],
                     defaults={
-                        'email_domain': line[8],
+                        'email_domain': domain,
                     })
                 try:
                     (signup, created) = models.Signup.objects.get_or_create(
@@ -96,10 +98,14 @@ def load_active_subscribers(path, date, notes):
                         signup_url=line[3],
                         defaults={
                             'group': group,
+                            'subsource': subsource,
                         })
                 except:
                     print(line)
                 else:
+                    if signup.subsource != subsource:
+                        signup.subsource = subsource
+                        signup.save()
                     is_active = truthy.get(line[5])
                     is_convio_active = activey.get(line[7])
                     try:
@@ -110,6 +116,8 @@ def load_active_subscribers(path, date, notes):
                                     'updated_on': modified_on,
                                     'active': is_active,
                                     'convio_active': is_convio_active,
+                                    'in_count': line[9],
+                                    'out_count': line[10],
                                 })
                     except:
                         print(line)
