@@ -76,7 +76,7 @@ def load_query(path, week_id):
         for line in records:
             batch.append(line[0])
             if len(batch) == 300:
-                week.subscriber_set.filter(email__in=line[0]).update(
+                week.subscriber_set.filter(signup__email__in=line[0]).update(
                     receiving_email=False
                 )
                 batch=[]
