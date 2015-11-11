@@ -70,7 +70,7 @@ def update_first():
 def load_query(path, week_id):
     with open(path, 'r', encoding='latin-1') as csv_file:
         records = csv.reader(csv_file, delimiter=',')
-        record.__next__()
+        records.__next__()
         week = models.Week.objects.get(pk=weed_Id)
         batch = []
         for line in records:
