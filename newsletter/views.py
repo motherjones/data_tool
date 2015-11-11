@@ -65,7 +65,7 @@ class UploadQueryView(SuperuserRequiredMixin,FormView):
         self.task.delay(
                         f.name,
                         form.cleaned_data['date'].pk)
-        return super(UploadSubscribersView, self).form_valid(form)
+        return super(UploadQueryView, self).form_valid(form)
 
 
 class ActiveSubscribersView(LoginRequiredMixin,DetailView):
