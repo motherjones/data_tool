@@ -10,7 +10,7 @@ class UploadSubscribersInput(forms.Form):
 
 class UploadQueryInput(forms.Form):
     csv_file = forms.FileField()
-    date = forms.MOdelChoiceField(
+    date = forms.ModelChoiceField(
            queryset=models.Week.objects.all().order_by('-date'))
 
 
