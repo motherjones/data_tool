@@ -38,6 +38,7 @@ class Week(models.Model):
     date = models.DateField(db_index=True,unique=True)
     notes = models.TextField(default='')
     complete = models.BooleanField(default=False)
+    query_complete = models.BooleanField(default=False)
 
     #Aggregate values
     net_active_change = models.IntegerField(null=True)
@@ -180,3 +181,4 @@ class Subscriber(models.Model):
     objects = SubscriberQuerySet.as_manager()
     in_count = models.IntegerField(db_index=True)
     out_count = models.IntegerField(db_index=True)
+    receiving_email = models.BooleanField(db_index=True, default=True)

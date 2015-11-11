@@ -66,6 +66,22 @@ def update_first():
     transaction.set_dirty()
     transaction.commit()
 
+@shared_task
+def load_query(path, week_id):
+    with open(path, 'r', encoding='latin-1') as csv_file:
+        records = csv.reader(csv_file, delimiter=',')
+        record.__next__()
+        week = models.Week.objects.get(pk=weed_Id)
+        batch = []
+        for line in records:
+            batch.append(line[0])
+            if len(batch) == 300:
+                week.subscriber_set.filter(email__in=line[0]).update(
+                    receiving_email=False
+                )
+                batch=[]
+        week.query_complete = True
+        week.save()
 
 @shared_task
 def load_active_subscribers(path, date, notes):

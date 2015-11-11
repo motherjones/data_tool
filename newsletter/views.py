@@ -51,6 +51,23 @@ class UploadSubscribersView(SuperuserRequiredMixin,FormView):
         return super(UploadSubscribersView, self).form_valid(form)
 
 
+class UploadQueryView(SuperuserRequiredMixin,FormView):
+    template_name = 'newsletter/subscribers_upload_view.html'
+    form_class = forms.UploadQueryInput
+    success_url = '/admin'
+    task = tasks.load_query
+
+    def form_valid(self, form):
+        csv_form = form.cleaned_data["csv_file"]
+        f = tempfile.NamedTemporaryFile(delete=False)
+        for chunk in csv_form.chunks():
+            f.write(chunk)
+        self.task.delay(
+                        f.name,
+                        form.cleaned_data['date'].pk)
+        return super(UploadSubscribersView, self).form_valid(form)
+
+
 class ActiveSubscribersView(LoginRequiredMixin,DetailView):
     model = models.Week
 

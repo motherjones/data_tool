@@ -8,6 +8,12 @@ class UploadSubscribersInput(forms.Form):
     notes = forms.CharField(widget=forms.Textarea, required=False)
 
 
+class UploadSubscribersInput(forms.Form):
+    csv_file = forms.FileField()
+    date = forms.MOdelChoiceField(
+           queryset=models.Week.objects.all().order_by('-date'))
+
+
 class SignupReportInput(forms.Form):
     start_date = forms.DateField()
     end_date = forms.DateField()
