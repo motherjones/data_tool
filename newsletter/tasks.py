@@ -81,7 +81,7 @@ def load_query(path, week_id):
                 )
                 batch=[]
         week.query_complete = True
-        week.save()
+        week.update_aggregate()
 
 @shared_task
 def load_active_subscribers(path, date, notes):
@@ -141,6 +141,4 @@ def load_active_subscribers(path, date, notes):
                 print(line)
         update_first()
         week.complete = True
-        week.save()
-        week.update_aggregate()
         week.save()
